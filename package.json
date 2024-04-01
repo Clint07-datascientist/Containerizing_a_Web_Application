@@ -1,1 +1,20 @@
-
+{
+  "name": "containerizing-a-web-application",
+  "version": "1.0.0",
+  "description": "Containerizing a web application",
+  "main": "script.js",
+  "scripts": {
+    "start": "script.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Clint07-datascientist/Containerizing_a_Web_Application.git"
+  },
+  "author": "Clinton Tanaka Pikita",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Clint07-datascientist/Containerizing_a_Web_Application/issues"
+  },
+  "homepage": "https://github.com/Clint07-datascientist/Containerizing_a_Web_Application#readme"
+}
