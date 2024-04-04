@@ -1,98 +1,98 @@
-const input = document.querySelector("input");
-const addButton = document.querySelector(".add-button");
-const todosHtml = document.querySelector(".todos");
-const emptyImage = document.querySelector(".empty-image");
-let todosJson = JSON.parse(localStorage.getItem("todos")) || [];
-const deleteAllButton = document.querySelector(".delete-all");
-const filters = document.querySelectorAll(".filter");
-let filter = '';
+const todoInput = document.getElementById('todoInput');
+const addTodoButton = document.getElementById('addTodo');
+const todoList = document.getElementById('todoList');
+const clearAllButton = document.getElementById('clearAll');
+const clearCompletedButton = document.getElementById('clearCompleted');
 
-showTodos();
+// Load todos from local storage
+let todos = JSON.parse(localStorage.getItem('todos')) || [];
 
-function getTodoHtml(todo, index) {
-  if (filter && filter != todo.status) {
-    return '';
-  }
-  let checked = todo.status == "completed" ? "checked" : "";
-  return /* html */ `
-    <li class="todo">
-      <label for="${index}">
-        <input id="${index}" onclick="updateStatus(this)" type="checkbox" ${checked}>
-        <span class="${checked}">${todo.name}</span>
-      </label>
-      <button class="delete-btn" data-index="${index}" onclick="remove(this)"><i class="fa fa-times"></i></button>
-    </li>
-  `; 
-}
-
-function showTodos() {
-  if (todosJson.length == 0) {
-    todosHtml.innerHTML = '';
-    emptyImage.style.display = 'block';
-  } else {
-    todosHtml.innerHTML = todosJson.map(getTodoHtml).join('');
-    emptyImage.style.display = 'none';
-  }
-}
-
-function addTodo(todo)  {
-  input.value = "";
-  todosJson.unshift({ name: todo, status: "pending" });
-  localStorage.setItem("todos", JSON.stringify(todosJson));
-  showTodos();
-}
-
-input.addEventListener("keyup", e => {
-  let todo = input.value.trim();
-  if (!todo || e.key != "Enter") {
-    return;
-  }
-  addTodo(todo);
-});
-
-addButton.addEventListener("click", () => {
-  let todo = input.value.trim();
-  if (!todo) {
-    return;
-  }
-  addTodo(todo);
-});
-
-function updateStatus(todo) {
-  let todoName = todo.parentElement.lastElementChild;
-  if (todo.checked) {
-    todoName.classList.add("checked");
-    todosJson[todo.id].status = "completed";
-  } else {
-    todoName.classList.remove("checked");
-    todosJson[todo.id].status = "pending";
-  }
-  localStorage.setItem("todos", JSON.stringify(todosJson));
-}
-
-function remove(todo) {
-  const index = todo.dataset.index;
-  todosJson.splice(index, 1);
-  showTodos();
-  localStorage.setItem("todos", JSON.stringify(todosJson));
-}
-
-filters.forEach(function (el) {
-  el.addEventListener("click", (e) => {
-    if (el.classList.contains('active')) {
-      el.classList.remove('active');
-      filter = '';
-    } else {
-      filters.forEach(tag => tag.classList.remove('active'));
-      el.classList.add('active');
-      filter = e.target.dataset.filter;
+// Render todos
+function renderTodos() {
+  todoList.innerHTML = '';
+  todos.forEach((todo, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div>
+        <input type="checkbox" onchange="toggleComplete(${index})" ${todo.completed ? 'checked' : ''}>
+        <span class="todo-text ${todo.completed ? 'completed' : ''}" onclick="editTodo(${index})">${todo.text}</span>
+      </div>
+      <div>
+        <i class="fas fa-edit edit-icon" onclick="editTodo(${index})"></i>
+        <i class="fas fa-trash delete-icon" onclick="deleteTodo(${index})"></i>
+      </div>
+    `;
+    if (todo.completed) {
+      li.classList.add('completed');
     }
-    showTodos();
+    todoList.appendChild(li);
   });
+}
+
+// Save todos to local storage
+function saveTodos() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+// Add todo
+function addTodo() {
+  const todoText = todoInput.value.trim();
+  if (todoText !== '') {
+    todos.push({ text: todoText, completed: false });
+    saveTodos();
+    renderTodos();
+    todoInput.value = '';
+  }
+}
+
+// Toggle todo completion
+function toggleComplete(index) {
+  todos[index].completed = !todos[index].completed;
+  saveTodos();
+  renderTodos();
+}
+
+// Edit todo
+function editTodo(index) {
+  const todoText = todos[index].text;
+  const newText = prompt('Edit todo:', todoText);
+  if (newText !== null) {
+    todos[index].text = newText.trim();
+    saveTodos();
+    renderTodos();
+  }
+}
+
+// Delete todo
+function deleteTodo(index) {
+  todos.splice(index, 1);
+  saveTodos();
+  renderTodos();
+}
+
+// Clear all todos
+clearAllButton.addEventListener('click', () => {
+  todos = [];
+  saveTodos();
+  renderTodos();
 });
 
-deleteAllButton.addEventListener("click", () => {
-  todosJson = [];
-  localStorage.setItem("todos", JSON.stringify(todosJson));
-  showTodos();
+// Clear completed todos
+clearCompletedButton.addEventListener('click', () => {
+  todos = todos.filter(todo => !todo.completed);
+  saveTodos();
+  renderTodos();
 });
+
+// Add todo on Enter key press
+todoInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    addTodo();
+  }
+});
+
+// Add todo on button click
+addTodoButton.addEventListener('click', addTodo);
+
+// Initial render
+renderTodos();
