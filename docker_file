@@ -1,20 +1,11 @@
-# Use an official Node.js runtime as the base image
-FROM node:14-alpine
+# Use the httpd image as the base
+FROM httpd:2.4
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+# Set the working directory
+WORKDIR /usr/local/apache2/htdocs/
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code to the working directory
+# Copy project files into the working directory
 COPY . .
 
-# Expose port 3000 to the outside world
-EXPOSE 3000
-
-# Command to run the application
-CMD ["npm", "start"]
+# Expose port 80
+EXPOSE 80
